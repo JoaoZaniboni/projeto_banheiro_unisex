@@ -1,82 +1,51 @@
 import threading
+import time
 
-# Semáforos
-lock_banheiro = threading.Semaphore(1)
-lock_contagem_homens = threading.Semaphore(1)
-lock_contagem_mulheres = threading.Semaphore(1)
-max_funcionarios = 3
-contagem_homens = 0
-contagem_mulheres = 0
+# Semáforos para controlar o acesso ao banheiro e a contagem de funcionários
+mutex = threading.Semaphore(1)
+banheiro = []  # Lista para representar o banheiro
 
-# Função para simular a entrada de um funcionário no banheiro
-def usar_banheiro(genero_funcionario):
-    global contagem_homens, contagem_mulheres
-    if genero_funcionario == 'masculino':
-        contagem_homens += 1
-        print(f'Funcionário masculino entrou no banheiro. Total de homens no banheiro: {contagem_homens}')
+def usar_banheiro(sexo):
+    print(f'Funcionário do sexo {sexo} entrou no banheiro')
+    time.sleep(10)  # Simula o uso do banheiro por 2 segundos
+    if sexo == 'feminino':
+        banheiro.remove('F')
     else:
-        contagem_mulheres += 1
-        print(f'Funcionária feminina entrou no banheiro. Total de mulheres no banheiro: {contagem_mulheres}')
+        banheiro.remove('M')
+    print(f'Funcionário do sexo {sexo} saiu do banheiro')
 
-# Função para simular a saída de um funcionário do banheiro
-def sair_banheiro(genero_funcionario):
-    global contagem_homens, contagem_mulheres
-    if genero_funcionario == 'masculino':
-        contagem_homens -= 1
-        print(f'Funcionário masculino saiu do banheiro. Total de homens no banheiro: {contagem_homens}')
-    else:
-        contagem_mulheres -= 1
-        print(f'Funcionária feminina saiu do banheiro. Total de mulheres no banheiro: {contagem_mulheres}')
-
-# Função para funcionários do sexo masculino
-def funcionario_masculino():
+def funcionario(sexo):
     while True:
-        # Entrada no banheiro masculino
-        lock_banheiro.acquire()
-        lock_contagem_homens.acquire()
-        if contagem_homens + contagem_mulheres < max_funcionarios:
-            usar_banheiro('masculino')
-            lock_contagem_homens.release()
-            # Simula o tempo que o funcionário passa no banheiro
-            # antes de sair
-            threading.Event().wait(2)
-            sair_banheiro('masculino')
-            lock_banheiro.release()
-            # Simula o tempo que o funcionário espera antes de tentar
-            # entrar novamente no banheiro
-            threading.Event().wait(3)
-        else:
-            lock_contagem_homens.release()
-            lock_banheiro.release()
-            # Simula o tempo que o funcionário espera quando o banheiro está
-            # cheio
-            threading.Event().wait(3)
+        # Solicita ao usuário o próximo funcionário a entrar no banheiro
+        entrada = input("Digite o próximo funcionário a entrar no banheiro (M para homem, F para mulher): ").upper()
 
-# Função para funcionários do sexo feminino
-def funcionario_feminino():
-    while True:
-        # Entrada no banheiro feminino
-        lock_banheiro.acquire()
-        lock_contagem_mulheres.acquire()
-        if contagem_homens + contagem_mulheres < max_funcionarios:
-            usar_banheiro('feminino')
-            lock_contagem_mulheres.release()
-            # Simula o tempo que a funcionária passa no banheiro
-            # antes de sair
-            threading.Event().wait(2)
-            sair_banheiro('feminino')
-            lock_banheiro.release()
-            # Simula o tempo que a funcionária espera antes de tentar
-            # entrar novamente no banheiro
-            threading.Event().wait(3)
+        # Verifica a escolha do usuário e incrementa a contagem de homens ou mulheres
+        if entrada == 'M':
+            mutex.acquire()
+            if 'F' not in banheiro and len(banheiro) < 3:  # Verifica se há menos de 3 homens no banheiro
+                banheiro.append('M')  # Adiciona 'M' à lista de funcionários no banheiro
+                mutex.release()
+                usar_banheiro('masculino')
+            else:
+                mutex.release()
+                print("Entrada de homem não permitida neste momento.")
+        elif entrada == 'F':
+            mutex.acquire()
+            if 'M' not in banheiro and len(banheiro) < 3:  # Verifica se há menos de 3 mulheres no banheiro
+                banheiro.append('F')  # Adiciona 'F' à lista de funcionários no banheiro
+                mutex.release()
+                usar_banheiro('feminino')
+            else:
+                mutex.release()
+                print("Entrada de mulher não permitida neste momento.")
         else:
-            lock_contagem_mulheres.release()
-            lock_banheiro.release()
-            
-            # Simula o tempo que a funcionária espera quando o banheiro está
-            # cheio
-            threading.Event().wait(3)
+            print("Entrada inválida! Por favor, digite 'M' para homem ou 'F' para mulher.")
 
-# Inicializa as threads para os funcionários do sexo masculino e feminino
-threading.Thread(target=funcionario_masculino).start()
-threading.Thread(target=funcionario_feminino).start()
+# Criação das threads para os funcionários
+for i in range(2):
+    t = threading.Thread(target=funcionario, args=('masculino',))
+    t.start()
+
+for i in range(2):
+    t = threading.Thread(target=funcionario, args=('feminino',))
+    t.start() 
