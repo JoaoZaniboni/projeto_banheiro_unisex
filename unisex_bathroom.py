@@ -13,12 +13,12 @@ class funcionario:
         id_thread = threading.get_ident()
         
         self.entrar_banheiro()
-        print(f"Cliente {self.sexo} {id_thread} ENTROU no banheiro\n")
+        print(f"Cliente {self.sexo} {id_thread} ENTROU no banheiro")
 
         sleep(randint(1,5))                         # "dorme"
 
         self.sair_banheiro()
-        print(f"Cliente {self.sexo} {id_thread} SAIU do banheiro\n")
+        print(f"Cliente {self.sexo} {id_thread} SAIU do banheiro")
 
 
     def entrar_banheiro(self):
@@ -30,8 +30,7 @@ class funcionario:
 
             if m == 0:                              # se n tiver ninguem do mesmo sexo, tenta adquirir exclusividade do banheiro
                 ocupado.acquire()                   # (se outro sexo ja estiver dentro nao vai conseguir adquirir ate ele esvaziar) - semaforo binario
-                                                    
-          
+
             m += 1                                  # + uma pessoa dentro
 
             mutexM.release()
