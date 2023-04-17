@@ -99,3 +99,11 @@ for n in range(n_thread // 2):                              # metade
 for n in range(n_thread % 2 + n_thread // 2):               # metade ou metade + 1 para impar
     t = threading.Thread(target=funcionario, args=('F'))
     t.start()
+
+# for n in range(n_thread):                             # metade
+#     i = randint(1,10)
+#     if i > 5:
+#         t = threading.Thread(target=funcionario, args=('M'))
+#     else:
+#         t = threading.Thread(target=funcionario, args=('F'))
+#     t.start()
