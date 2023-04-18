@@ -1,6 +1,6 @@
 import threading
 from time import sleep
-from random import randint
+from random import randint, choice
 
 
 class funcionario:
@@ -104,6 +104,11 @@ for n in range(n_thread % 2 + n_thread // 2):               # metade ou metade +
 #     i = randint(1,10)
 #     if i > 5:
 #         t = threading.Thread(target=funcionario, args=('M'))
-#     else:
+#     else:                                          
 #         t = threading.Thread(target=funcionario, args=('F'))
 #     t.start()
+
+
+#for n in range(n_thread):                              # metade
+#    t = threading.Thread(target=funcionario, args=(choice(["M", "F"])))
+#    t.start()
