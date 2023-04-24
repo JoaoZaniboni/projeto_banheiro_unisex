@@ -12,10 +12,12 @@ class funcionario:
 
         id_thread = threading.get_ident()
         
+        sleep(randint(2,5))                 # espera um certo tempo antes de entrar no banheiro
+        
         self.entrar_banheiro()
         print(f"Cliente {self.sexo} {id_thread} ENTROU no banheiro")
 
-        sleep(randint(1,5))                         # "dorme"
+        sleep(randint(1,5))                         # "dorme" dentro do banheiro
 
         self.sair_banheiro()
         print(f"Cliente {self.sexo} {id_thread} SAIU do banheiro")
@@ -75,8 +77,8 @@ class funcionario:
 
             mutexF.release()
 
-
 # n_thread, tamanho_banheiro = [int(x) for x in input("Digite o número de threads (pessoas) e o tamanho do banheiro").split()]
+
 n_thread = 10
 tamanho_banheiro = 3
 
@@ -85,22 +87,33 @@ ocupado = threading.Semaphore(1)        # garante 1 sexo por vez
 m = 0
 f = 0
 
-mutexM = threading.Lock()
+mutexM = threading.Lock()           # Mutex para as variaveis acima
 mutexF = threading.Lock()
 
-maximo_m = threading.Semaphore(tamanho_banheiro)
+maximo_m = threading.Semaphore(tamanho_banheiro)        # semaforo para limitar a quantidade de pessoas no banheiro
 maximo_f = threading.Semaphore(tamanho_banheiro)
 
 
-for n in range(n_thread // 2):                              # metade
-    t = threading.Thread(target=funcionario, args=('M'))
-    t.start()
+for n in range(n_thread):
+   t = threading.Thread(target=funcionario, args=(choice(["M", "F"])))
+   t.start()
 
-for n in range(n_thread % 2 + n_thread // 2):               # metade ou metade + 1 para impar
-    t = threading.Thread(target=funcionario, args=('F'))
-    t.start()
 
-# for n in range(n_thread):                             # metade
+
+
+
+
+
+
+# for n in range(n_thread // 2):                              # metade
+#     t = threading.Thread(target=funcionario, args=('M'))
+#     t.start()
+
+# for n in range(n_thread % 2 + n_thread // 2):               # metade ou metade + 1 para impar
+#     t = threading.Thread(target=funcionario, args=('F'))
+#     t.start()
+
+# for n in range(n_thread):
 #     i = randint(1,10)
 #     if i > 5:
 #         t = threading.Thread(target=funcionario, args=('M'))
@@ -108,7 +121,3 @@ for n in range(n_thread % 2 + n_thread // 2):               # metade ou metade +
 #         t = threading.Thread(target=funcionario, args=('F'))
 #     t.start()
 
-
-#for n in range(n_thread):                              # metade
-#    t = threading.Thread(target=funcionario, args=(choice(["M", "F"])))
-#    t.start()
